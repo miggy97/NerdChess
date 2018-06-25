@@ -5,13 +5,17 @@ import java.util.Scanner;
 public class Game {
     private Board boardGame = new Board();
     private Scanner sc = new Scanner(System.in);
-    private int round = 0;
 
     public Game() {
-        System.out.println("RONDA: " + round);
-        gameCicle();
+        start();
     }
 
+    private void start(){
+        System.out.println("\n··· RONDA: " + boardGame.getRound() + " ···");
+        //Choose pro piece
+        //Choose max rounds ??
+        gameCicle();
+    }
     private void gameCicle() {
         boardGame.printBoard();//Prints the info about the game
         System.out.println("1.Mover  2.Atacar  3.Curar  4.Combinarse   5.Reproducirse  6.CambiarBotas");
@@ -30,11 +34,10 @@ public class Game {
 
         if (boardGame.selectAction(action, piece, boardGame)) {
             boardGame.addToUsed();
-            boardGame.setTurn(!boardGame.isTurn());
-            gameCicle();
-        } else {
-            gameCicle();
+            boardGame.setTurn();
         }
+
+        gameCicle();
     }
 
     private void turn() {

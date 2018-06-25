@@ -12,6 +12,7 @@ public class Board {
     private List<Piece> lowerUsed = new ArrayList<Piece>();
     private boolean turn = true; //'true' is Upper turn and 'false' is 'Lower' turn
     private Piece pieceTurn; //Piece that is playing in that turn
+    private int round = 0;
 
     public Board() {
         initializeBoard();
@@ -109,7 +110,7 @@ public class Board {
     public void addToUsed() {
         if (turn) {//Upper turn
             upperUsed.add(this.pieceTurn);
-        } else {
+        } else {//Lower turn
             lowerUsed.add(this.pieceTurn);
         }
     }
@@ -136,8 +137,39 @@ public class Board {
         return turn;
     }
 
-    public void setTurn(boolean turn) {
-        this.turn = turn;
+    public int getRound(){
+        return this.round;
+    }
+
+
+    public void setTurn() {
+        if(turn){//Turn Upper
+            if(isRoundUpper() && isRoundLower()){//If they move all pieces in this round
+                this.round ++;
+                System.out.println("\n··· RONDA: " + this.round + " ···");
+                resetUsed();
+                this.turn = false;
+            }
+            else if(!isRoundLower()){//If 'Lower' can move pieces then we give it the turn
+                this.turn = false;
+            }
+
+            //else 'Upper' continues with the turn
+
+        }
+        else{//Turn Lower
+            if(isRoundUpper() && isRoundLower()){//If they move  all piecers in this round
+                this.round ++;
+                System.out.println("\n··· RONDA: " + this.round + " ···");
+                resetUsed();
+                this.turn = true;
+            }
+            else if(!isRoundUpper()){//If 'Upper' can move pieces then we give it the turn
+                this.turn = true;
+            }
+
+            //else 'Lower' continues with the turn
+        }
     }
 
     public String printUsed() {
