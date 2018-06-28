@@ -11,10 +11,23 @@ public class Game {
     }
 
     private void start(){
+        //Choose pro pieces (the game doesn't start until you complete this step correctly)
+        while (true) if(choosePro()) break;
+        while (true) if (choosePro()) break;
+
+        //Initialize Board with pieces
+        boardGame.initializeBoard();
+
         System.out.println("\n··· RONDA: " + boardGame.getRound() + " ···");
-        //Choose pro piece
+
         //Choose max rounds ??
         gameCicle();
+    }
+    private boolean choosePro(){
+        turn();
+        System.out.println("Elige 2 piezas pro (Ejemplo: F-D):");
+        String pro = sc.nextLine();
+        return boardGame.initializePieces(pro);
     }
     private void gameCicle() {
         boardGame.printBoard();//Prints the info about the game
@@ -22,17 +35,10 @@ public class Game {
         turn();//Whose turn
         System.out.println("Acción:");
 
-        //Get the input
+        //Get action and piece (1-W)
         String actionPiece = sc.nextLine();
-        if (!actionPiece.contains("-")) {
-            System.out.println("Error! La acción no se ha introducido adecuadamente");
-            gameCicle();
-        }
-        String[] parts = actionPiece.split("-");
-        int action = Integer.parseInt(parts[0]);
-        String piece = parts[1];
 
-        if (boardGame.selectAction(action, piece, boardGame)) {
+        if (boardGame.selectAction(actionPiece, boardGame)) {
             boardGame.addToUsed();
             boardGame.setTurn();
         }

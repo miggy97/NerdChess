@@ -1,21 +1,34 @@
-package com.utad;
+package com.utad.pieces;
+
+import com.utad.*;
 
 //Decorator, Strategy, Template, State, Factory
-public class Piece {
-    private boolean upper; //This identifies the team ('Upper' or 'Lower')
-    private String name;
+public abstract class Piece {
+    protected boolean upper; //This identifies the team ('Upper' or 'Lower')
+    protected String name = "";
     //private boolean isPro = false; //Represented with '*'
     //private boolean isSuper = false; //Represented with letter of union (Example: WE)
     //private boolean isChild = false; //Represented with '+'
-    private int hp = 100;//Health Points
-    private int x;
-    private int y;
+    protected int hp = 0; //Health Points
+    protected int attackDmg = 0; //Attack Damage
+    protected int magicDmg = 0; //Magic Damage
+    protected int x;
+    protected int y;
 
-    public Piece(boolean upper, String name, int x, int y) {
-        this.upper = upper;
-        this.name = name;
-        this.x = x;
-        this.y = y;
+    public Piece() {
+
+    }
+
+    public int getAttackDmg() {
+        return attackDmg;
+    }
+
+    public int getMagicDmg() {
+        return magicDmg;
+    }
+
+    public String getName() {
+        return name;
     }
 
     public int getHp() {
@@ -28,10 +41,6 @@ public class Piece {
 
     public boolean isUpper() {
         return upper;
-    }
-
-    public String getName() {
-        return name;
     }
 
     public int getX() {
@@ -49,4 +58,5 @@ public class Piece {
     public void setY(int y) {
         this.y = y;
     }
+
 }

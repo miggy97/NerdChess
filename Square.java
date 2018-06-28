@@ -1,5 +1,7 @@
 package com.utad;
 
+import com.utad.pieces.Piece;
+
 public class Square {
     //private int x;
     //private int y;
