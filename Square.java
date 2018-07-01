@@ -7,6 +7,7 @@ public class Square {
     //private int y;
 
     private Piece piece;
+    private boolean isActive; //Determine if the square can be use
 
     public Square() {
         this.piece = null;
@@ -25,4 +26,11 @@ public class Square {
         else return true;
     }
 
+    public void setActive(boolean active) {
+        isActive = active;
+    }
+
+    public boolean isActive() {
+        return isActive;
+    }
 }

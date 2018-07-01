@@ -4,13 +4,8 @@ import com.utad.factory.FactoryNormal;
 import com.utad.factory.FactoryPiece;
 import com.utad.factory.FactoryPro;
 import com.utad.pieces.Piece;
-import com.utad.pieces.Wizard;
 
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 
 public class Board {
     private Square[][] board = new Square[5][5];
@@ -22,6 +17,10 @@ public class Board {
     private Piece pieceTurn; //Piece that is playing in that turn
     private int round = 0;
     private FactoryPiece factory;
+    private Logic logic = new Logic();
+    private int x, y;
+    private boolean upperReproduce = false;
+    private boolean lowerReproduce = false;
 
     public Board() {
 
@@ -92,6 +91,7 @@ public class Board {
     public boolean selectAction(String actionPiece, Board boardGame) {
         boolean result = false;
         int action;
+        Square squareAction;// Square where it takes place the action
         String piece;
 
         //Split String and checking for errors
@@ -102,45 +102,167 @@ public class Board {
 
             //Setting piece (return false if already played or doesn't exist)
             if (!setPieceTurn(piece)) return result;
-
+            pieceTurn.tellState();
         } catch (Exception e) {
-            System.out.println("Error! La acción no se ha introducido adecuadamente. Ejemplo: 1-W");
-            return  false;
+            System.out.println("Error! La accion no se ha introducido adecuadamente. Ejemplo: 1-W");
+            return false;
         }
 
         //Execute action
         switch (action) {
             case 1://Move
+                this.pieceTurn.calculateMovement(boardGame);
+                squareAction = selectSquare();
+                if (squareAction == null) return false;
+                this.pieceTurn.move(x, y);
                 result = true;
-                //result = this.pieceTurn.Move(boardGame);
                 break;
             case 2://Attack
-                result = true;
-                //result = this.pieceTurn.Attack(boardGame);
+                logic.prepareAttack(pieceTurn.getX(), pieceTurn.getY(), boardGame);
+                squareAction = selectSquare();
+                if (squareAction == null) return false;
+                result = this.pieceTurn.ExecuteAttack(squareAction.getPiece());
                 break;
             case 3://Heal
-                result = true;
-                //result = this.pieceTurn.Heal(boardGame);
+                logic.prepareTeamAction(pieceTurn.getX(), pieceTurn.getY(), boardGame);
+                squareAction = selectSquare();
+                if (squareAction == null) return false;
+                result = this.pieceTurn.heal(squareAction.getPiece());
                 break;
             case 4://Merge
-                result = true;
-                //result = this.pieceTurn.Merge(boardGame);
+                logic.prepareTeamAction(pieceTurn.getX(), pieceTurn.getY(), boardGame);
+                squareAction = selectSquare();
+                if (squareAction == null) return false;
+                result = this.pieceTurn.merge(squareAction, boardGame);
                 break;
             case 5://Reproduce
                 result = true;
-                //result = this.pieceTurn.Reproduce(boardGame);
+                logic.prepareReproduce(pieceTurn.getX(), pieceTurn.getY(), boardGame);
+                squareAction = selectSquare();
+                if (squareAction == null) return false;
+                result = this.pieceTurn.reproduce(x, y, boardGame);
                 break;
             case 6:
-                //result = this.pieceTurn.ChangeBoots
-                result = true;
+                result = this.pieceTurn.changeBoots();
                 break;
             default://Error
-                System.out.println("Error! No existe la acción: " + action);
+                System.out.println("Error! No existe la accion: " + action);
                 result = false;
                 break;
         }
+        updateBoard();
         return result;
     }
+
+    public void updateBoard() {
+        Piece pieceDead = null;
+        for (int i = 0; i < board.length; i++) {
+            for (int j = 0; j < board.length; j++) {
+                board[i][j].setActive(false);
+                board[i][j].setPiece(null);
+            }
+        }
+
+
+        for (Piece piece: upperTeam) {
+            if (piece.getHp() > 0) {
+                board[piece.getX()][piece.getY()].setPiece(piece);
+            } else {
+                System.out.println("La pieza " + piece.getName() + " ha muerto!!");
+                pieceDead = piece;
+            }
+        }
+        if (pieceDead != null) {
+            upperTeam.remove(pieceDead);
+            upperUsed.remove(pieceDead);
+            pieceDead = null;
+        }
+
+
+        for (Piece piece: lowerTeam) {
+            if (piece.getHp() > 0) {
+                board[piece.getX()][piece.getY()].setPiece(piece);
+            } else {
+                System.out.println("La pieza " + piece.getName() + " ha muerto!!");
+                pieceDead = piece;
+            }
+        }
+
+        if (pieceDead != null) {
+            lowerTeam.remove(pieceDead);
+            lowerUsed.remove(pieceDead);
+        }
+
+    }
+
+    public Square selectSquare() {
+        Scanner sc = new Scanner(System.in);
+        String column = "ABCDE";
+        System.out.println("Elige casilla (Ejemplo: 1A)");
+        String square = sc.nextLine();
+        try {
+            x = Character.getNumericValue(square.charAt(0)) - 1;
+            y = column.indexOf(square.charAt(1));
+            if (board[x][y].isActive()) {
+                return board[x][y];
+            } else {
+                System.out.println("Error! No es una casilla valida!");
+                return null;
+            }
+        } catch (Exception e) {
+            System.out.println("Error! No se a introducido la casilla adecuadamente!");
+            return null;
+        }
+    }
+
+    public void executeMerge(Piece piece) {
+        if (turn) {
+            upperTeam.get(upperTeam.indexOf(this.pieceTurn)).setPiece(piece);
+            upperTeam.remove(piece);
+            upperUsed.remove(piece);
+        } else {
+            upperTeam.get(upperTeam.indexOf(this.pieceTurn)).setPiece(piece);
+            upperTeam.remove(piece);
+            upperUsed.remove(piece);
+        }
+    }
+
+    public void executeReproduce(int x, int y) {
+        Piece pieceChild;
+        if (pieceTurn.getName().toUpperCase().equals("W*")) {
+            pieceChild = factory.createWizard(turn);
+        } else if (pieceTurn.getName().toUpperCase().equals("E*")) {
+            pieceChild = factory.createElf(turn);
+        } else if (pieceTurn.getName().toUpperCase().equals("T*")) {
+            pieceChild = factory.createTitan(turn);
+        } else if (pieceTurn.getName().toUpperCase().equals("F*")) {
+            pieceChild = factory.createFighter(turn);
+        } else {
+            pieceChild = factory.createDragon(turn);
+        }
+        pieceChild.setName(pieceChild.getName() + "+");
+        pieceChild.setX(x);
+        pieceChild.setY(y);
+
+        if (turn) {
+            upperTeam.add(pieceChild);
+            upperReproduce = true;
+        } else {
+            lowerTeam.add(pieceChild);
+            lowerReproduce = true;
+        }
+    }
+
+
+    public boolean isUpperReproduce() {
+        return upperReproduce;
+    }
+
+
+    public boolean isLowerReproduce() {
+        return lowerReproduce;
+    }
+
 
     //If the piece exists sets the piece and returns 'true' else returns 'false'
     public boolean setPieceTurn(String pieceName) {
@@ -189,6 +311,11 @@ public class Board {
 
     public Square getSquare(int x, int y) {
         return board[x][y];
+    }
+
+    public boolean isSameTeam(int x, int y) {
+        if (board[x][y].isOccupied() && this.pieceTurn.isUpper() == board[x][y].getPiece().isUpper()) return true;
+        else return false;
     }
 
     public boolean isTurn() {
@@ -253,7 +380,7 @@ public class Board {
     }
 
     public void printBoard() {
-        boolean flag = true; //To place leters
+        boolean flag = true; //To place letters
         for (int i = 0; i < board.length; i++) {
             System.out.println("");
             if (flag) {

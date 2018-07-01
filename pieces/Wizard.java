@@ -8,7 +8,7 @@ public class Wizard extends PieceDecorator {
 
         //Setting statistics
         this.hp = 100;
-        this.attackDmg = 50;
+        this.attackDmg = 10;
         this.magicDmg = 50;
 
         //Setting name according to the team Upper/Lower
@@ -19,8 +19,19 @@ public class Wizard extends PieceDecorator {
         this.y = 0;
     }
 
+    @Override //Use magic damage offensively
+    public int specificAttack(int attackDmg) {
+        return piece.specificAttack(attackDmg) + getMagicDmg() + attackDmg;
+    }
+
+    @Override //Heals a 30% of his magic damage
+    public void specificDefense(int magicDmg) {
+        piece.specificDefense(magicDmg);
+        setHealTaken((int) (magicDmg * 0.3));
+    }
+
     public int getHp() {
-        return piece.getHp() + this.hp;
+        return (piece.getHp() + this.hp) - this.damageTaken;
     }
 
     public int getAttackDmg() {

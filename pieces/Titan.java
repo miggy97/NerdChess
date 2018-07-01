@@ -6,9 +6,9 @@ public class Titan extends PieceDecorator {
         this.upper = piece.upper;
 
         //Setting statistics
-        this.hp = 100;
-        this.attackDmg = 50;
-        this.magicDmg = 50;
+        this.hp = 400;
+        this.attackDmg = 20;
+        this.magicDmg = 0;
 
         //Setting name according to the team Upper/Lower
         this.name = (upper) ? "T" : "t";
@@ -18,8 +18,18 @@ public class Titan extends PieceDecorator {
         this.y = 2;
     }
 
+    @Override //3% of his actual hp turns into dmg
+    public int specificAttack(int attackDmg) {
+        return piece.specificAttack(attackDmg) + (int) (attackDmg + getHp() * 0.03);
+    }
+
+    @Override
+    public void specificDefense(int magicDmg) {
+        //No heal
+    }
+
     public int getHp() {
-        return piece.getHp() + this.hp;
+        return (piece.getHp() + this.hp) - this.damageTaken;
     }
 
     public int getAttackDmg() {

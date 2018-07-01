@@ -7,9 +7,9 @@ public class Fighter extends PieceDecorator {
         this.upper = piece.upper;
 
         //Setting statistics
-        this.hp = 100;
+        this.hp = 200;
         this.attackDmg = 50;
-        this.magicDmg = 50;
+        this.magicDmg = 10;
 
         //Setting name according to the team Upper/Lower
         this.name = (upper) ? "F" : "f";
@@ -19,8 +19,23 @@ public class Fighter extends PieceDecorator {
         this.y = 3;
     }
 
+    @Override //If his hp is 200 or higher he does 20% more dmg
+    public int specificAttack(int attackDmg) {
+        if (getHp() >= 200) {
+            return (int) ((piece.specificAttack(attackDmg) + attackDmg) * 1.2);
+        } else {
+            return piece.specificAttack(attackDmg) + attackDmg;
+        }
+    }
+
+    @Override//All the magic dmg turns in to hp
+    public void specificDefense(int magicDmg) {
+        piece.specificDefense(magicDmg);
+        takeHeal(magicDmg);
+    }
+
     public int getHp() {
-        return piece.getHp() + this.hp;
+        return (piece.getHp() + this.hp) - this.damageTaken;
     }
 
     public int getAttackDmg() {

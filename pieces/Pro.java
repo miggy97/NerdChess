@@ -14,19 +14,29 @@ public class Pro extends PieceDecorator {
         this.y = this.piece.y;
     }
 
+    @Override
+    public int specificAttack(int attackDmg) {
+        return piece.specificAttack(attackDmg);
+    }
+
+    @Override
+    public void specificDefense(int magicDmg) {
+        piece.specificDefense(magicDmg);
+    }
+
     public int getHp() {
-        return piece.getHp() + this.hp;
+        return (piece.getHp() + this.hp) - this.damageTaken;
     }
 
     public int getAttackDmg() {
-        //Increasing attack damage 50%
-        return (int) (piece.getAttackDmg() * 1.5);
+        //Increasing attack damage 20%
+        return (int) (piece.getAttackDmg() * 1.2);
     }
 
     public int getMagicDmg() {
 
-        //Increasing attack  damge 50%
-        return (int) (piece.getMagicDmg() + 1 * 5);
+        //Increasing attack  damge 20%
+        return (int) (piece.getMagicDmg() * 1.2);
     }
 
     public String getName() {

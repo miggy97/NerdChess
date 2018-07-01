@@ -7,9 +7,9 @@ public class Elf extends PieceDecorator {
         this.upper = piece.upper;
 
         //Setting statistics
-        this.hp = 100;
-        this.attackDmg = 50;
-        this.magicDmg = 50;
+        this.hp = 150;
+        this.attackDmg = 20;
+        this.magicDmg = 20;
 
         //Setting name according to the team Upper/Lower
         this.name = (upper) ? "E" : "e";
@@ -19,8 +19,21 @@ public class Elf extends PieceDecorator {
         this.y = 1;
     }
 
+    @Override //Hybrid damage (and if he is lower than 30 hp he will do double damage)
+    public int specificAttack(int attackDmg) {
+
+        if (getHp() < 30) {
+            return piece.specificAttack(attackDmg) + attackDmg + getMagicDmg() * 2;
+        } else return piece.specificAttack(attackDmg) + attackDmg + getMagicDmg();
+    }
+
+    @Override //He will heal 10hp as a defense
+    public void specificDefense(int magicDmg) {
+        setHealTaken(10);
+    }
+
     public int getHp() {
-        return piece.getHp() + this.hp;
+        return (piece.getHp() + this.hp) - this.damageTaken;
     }
 
     public int getAttackDmg() {
